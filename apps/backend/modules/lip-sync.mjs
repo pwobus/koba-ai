@@ -7,7 +7,11 @@ const RETRY_DELAY = 0;
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const lipSync = async ({ messages }) => {
+const lipSync = async ({ messages } = {}) => {
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return Array.isArray(messages) ? messages : [];
+  }
+
   await Promise.all(
     messages.map(async (message, index) => {
       const fileName = `audios/message_${index}.mp3`;
