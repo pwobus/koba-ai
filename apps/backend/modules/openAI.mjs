@@ -1,4 +1,4 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { StructuredOutputParser } from "langchain/output_parsers";
 import { z } from "zod";
@@ -21,11 +21,11 @@ const prompt = ChatPromptTemplate.fromMessages([
   ["human", "{question}"],
 ]);
 
-const model = new ChatGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_API_KEY || "-",
-  model: process.env.GEMINI_MODEL || "gemini-pro",
+const model = new ChatOpenAI({
+  openAIApiKey: process.env.OPENAI_API_KEY || "-",
+  modelName: process.env.OPENAI_MODEL || "gpt-4o-realtime-preview",
   temperature: 0.2,
-  maxOutputTokens: 2048,
+  maxTokens: 2048,
 });
 
 const parser = StructuredOutputParser.fromZodSchema(

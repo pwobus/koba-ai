@@ -2,7 +2,7 @@ import { audioFileToBase64, readJsonTranscript } from "../utils/files.mjs";
 import dotenv from "dotenv";
 dotenv.config();
 
-const googleApiKey = process.env.GOOGLE_API_KEY;
+const openAIApiKey = process.env.OPENAI_API_KEY;
 const elevenLabsApiKey = process.env.ELEVEN_LABS_API_KEY;
 
 async function sendDefaultMessages({ userMessage }) {
@@ -26,17 +26,17 @@ async function sendDefaultMessages({ userMessage }) {
     ];
     return messages;
   }
-  if (!elevenLabsApiKey || !googleApiKey) {
+  if (!elevenLabsApiKey || !openAIApiKey) {
     messages = [
       {
-        text: "Please my friend, don't forget to add your API keys! (Google Gemini and ElevenLabs)",
+        text: "Please my friend, don't forget to add your API keys! (OpenAI GPT-4o and ElevenLabs)",
         audio: await audioFileToBase64({ fileName: "audios/api_0.wav" }),
         lipsync: await readJsonTranscript({ fileName: "audios/api_0.json" }),
         facialExpression: "angry",
         animation: "TalkingThree",
       },
       {
-        text: "You don't want to ruin Jack with a crazy Gemini and ElevenLabs bill, right?",
+        text: "You don't want to ruin Jack with a crazy GPT-4o and ElevenLabs bill, right?",
         audio: await audioFileToBase64({ fileName: "audios/api_1.wav" }),
         lipsync: await readJsonTranscript({ fileName: "audios/api_1.json" }),
         facialExpression: "smile",
