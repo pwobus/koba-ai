@@ -21,11 +21,12 @@ const prompt = ChatPromptTemplate.fromMessages([
   ["human", "{question}"],
 ]);
 
-const modelName = process.env.OPENAI_MODEL || "gpt-4o";
+const DEFAULT_MODEL = "gpt-4o";
+const modelName = process.env.OPENAI_MODEL || DEFAULT_MODEL;
 
 // ChatOpenAI uses the chat-completions API; the realtime-preview models are only
 // available via the websocket client and will fail here with `model_not_found`.
-const safeModelName = modelName.includes("realtime") ? "gpt-4o" : modelName;
+const safeModelName = modelName.includes("realtime") ? DEFAULT_MODEL : modelName;
 
 const model = new ChatOpenAI({
   openAIApiKey: process.env.OPENAI_API_KEY || "-",
