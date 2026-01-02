@@ -37,7 +37,7 @@ const prompt = ChatPromptTemplate.fromMessages([
 
 const model = new ChatOpenAI({
   openAIApiKey: process.env.OPENAI_API_KEY || "-",
-  modelName: process.env.OPENAI_MODEL || "gpt-4o-realtime-preview",
+  modelName: process.env.OPENAI_MODEL || "gpt-4o",
   temperature: 0.2,
   maxTokens: 2048,
 });
