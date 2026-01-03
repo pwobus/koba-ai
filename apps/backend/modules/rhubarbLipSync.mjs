@@ -94,7 +94,14 @@ const getPhonemes = async ({ message }) => {
     // -r phonetic is faster but less accurate
     console.log(`Lip sync done in ${new Date().getTime() - time}ms`);
   } catch (error) {
-    console.error(`Error while getting phonemes for message ${message}:`, error);
+    const permissionHints =
+      error?.code === 126 || error?.code === "EACCES"
+        ?
+            " The Rhubarb binary may not have execute permissions for this user, or it may be built for a different platform. " +
+          "Verify the binary matches your system architecture and run 'chmod +x <rhubarb-path>' (avoiding directories mounted with the noexec flag)."
+        : "";
+
+    console.error(`Error while getting phonemes for message ${message}:${permissionHints}`, error);
   }
 };
 
