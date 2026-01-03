@@ -1,21 +1,47 @@
 import fs from "fs";
 import path from "path";
+import { spawnSync } from "child_process";
+import { fileURLToPath } from "url";
 
 import { execCommand } from "../utils/files.mjs";
 
-const RHUBARB_PATH = process.env.RHUBARB_PATH || "./bin/rhubarb";
+const RHUBARB_PATH = process.env.RHUBARB_PATH;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const defaultBinaryName = process.platform === "win32" ? "rhubarb.exe" : "rhubarb";
+const defaultBinaryPath = path.join(__dirname, "..", "bin", defaultBinaryName);
+
+const getSystemRhubarbPath = () => {
+  const isWindows = process.platform === "win32";
+  const command = isWindows ? "where" : "which";
+  const binaryName = isWindows ? `${defaultBinaryName}` : "rhubarb";
+  const { status, stdout } = spawnSync(command, [binaryName], { encoding: "utf8" });
+
+  if (status === 0) {
+    const resolved = stdout.trim();
+
+    if (resolved) {
+      return resolved;
+    }
+  }
+
+  return null;
+};
 
 const getRhubarbBinaryPath = () => {
-  const resolvedPath = path.resolve(RHUBARB_PATH);
+  const candidates = [RHUBARB_PATH && path.resolve(RHUBARB_PATH), defaultBinaryPath, getSystemRhubarbPath()].filter(
+    Boolean
+  );
 
-  if (fs.existsSync(resolvedPath)) {
-    return resolvedPath;
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
   }
 
   throw new Error(
-    `Rhubarb Lip-Sync binary not found at "${resolvedPath}". ` +
-      "Download the Rhubarb Lip-Sync release for your platform and place the executable in apps/backend/bin, " +
-      "or set the RHUBARB_PATH environment variable to the binary location (see README)."
+    `Rhubarb Lip-Sync binary not found. Looked in: ${candidates.join(", ")}. ` +
+      "Download the Rhubarb Lip-Sync release for your platform, place the executable in apps/backend/bin, " +
+      "install it globally so it's available on your PATH, or set the RHUBARB_PATH environment variable to the binary location (see README)."
   );
 };
 
