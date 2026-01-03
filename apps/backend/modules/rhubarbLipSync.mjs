@@ -45,6 +45,27 @@ const getRhubarbBinaryPath = () => {
   );
 };
 
+const getRhubarbBinaryDetails = () => {
+  const binaryPath = getRhubarbBinaryPath();
+
+  return {
+    binaryPath,
+    workingDirectory: path.dirname(binaryPath),
+  };
+};
+
+const validateRhubarbResources = (workingDirectory) => {
+  const expectedTmatPath = path.join(workingDirectory, "pocketsphinx", "model", "en-us", "en-us", "tmat");
+
+  if (!fs.existsSync(expectedTmatPath)) {
+    throw new Error(
+      `Rhubarb Lip-Sync resources not found at ${expectedTmatPath}. ` +
+        "Download and extract the full Rhubarb Lip-Sync release (including the pocketsphinx folder) into apps/backend/bin or " +
+        "point RHUBARB_PATH to a directory that includes those resources."
+    );
+  }
+};
+
 const getPhonemes = async ({ message }) => {
   try {
     const time = new Date().getTime();
@@ -54,8 +75,12 @@ const getPhonemes = async ({ message }) => {
       // -y to overwrite the file
     );
     console.log(`Conversion done in ${new Date().getTime() - time}ms`);
+    const { binaryPath, workingDirectory } = getRhubarbBinaryDetails();
+    validateRhubarbResources(workingDirectory);
+
     await execCommand({
-      command: `"${getRhubarbBinaryPath()}" -f json -o audios/message_${message}.json audios/message_${message}.wav -r phonetic`,
+      command: `"${binaryPath}" -f json -o audios/message_${message}.json audios/message_${message}.wav -r phonetic`,
+      cwd: workingDirectory,
     });
     // -r phonetic is faster but less accurate
     console.log(`Lip sync done in ${new Date().getTime() - time}ms`);

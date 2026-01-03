@@ -1,9 +1,9 @@
 import { exec } from "child_process";
 import { promises as fs } from "fs";
 
-const execCommand = ({ command }) => {
+const execCommand = ({ command, cwd }) => {
   return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
+    exec(command, { cwd }, (error, stdout, stderr) => {
       if (error) reject(error);
       resolve(stdout);
     });
