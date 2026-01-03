@@ -69,9 +69,13 @@ const validateRhubarbResources = (workingDirectory) => {
 const getPhonemes = async ({ message }) => {
   try {
     const time = new Date().getTime();
+    const audioDirectory = path.resolve("audios");
+    const mp3Path = path.join(audioDirectory, `message_${message}.mp3`);
+    const wavPath = path.join(audioDirectory, `message_${message}.wav`);
+    const jsonOutputPath = path.join(audioDirectory, `message_${message}.json`);
     console.log(`Starting conversion for message ${message}`);
     await execCommand(
-      { command: `ffmpeg -y -i audios/message_${message}.mp3 audios/message_${message}.wav` }
+      { command: `ffmpeg -y -i "${mp3Path}" "${wavPath}"` }
       // -y to overwrite the file
     );
     console.log(`Conversion done in ${new Date().getTime() - time}ms`);
@@ -79,7 +83,7 @@ const getPhonemes = async ({ message }) => {
     validateRhubarbResources(workingDirectory);
 
     await execCommand({
-      command: `"${binaryPath}" -f json -o audios/message_${message}.json audios/message_${message}.wav -r phonetic`,
+      command: `"${binaryPath}" -f json -o "${jsonOutputPath}" "${wavPath}" -r phonetic`,
       cwd: workingDirectory,
     });
     // -r phonetic is faster but less accurate
