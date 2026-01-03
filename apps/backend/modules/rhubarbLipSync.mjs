@@ -27,20 +27,29 @@ const getSystemRhubarbPath = () => {
   return null;
 };
 
+const isExecutable = (filePath) => {
+  try {
+    fs.accessSync(filePath, fs.constants.X_OK);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
 const getRhubarbBinaryPath = () => {
   const candidates = [RHUBARB_PATH && path.resolve(RHUBARB_PATH), defaultBinaryPath, getSystemRhubarbPath()].filter(
     Boolean
   );
 
   for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
+    if (fs.existsSync(candidate) && isExecutable(candidate)) {
       return candidate;
     }
   }
 
   throw new Error(
-    `Rhubarb Lip-Sync binary not found. Looked in: ${candidates.join(", ")}. ` +
-      "Download the Rhubarb Lip-Sync release for your platform, place the executable in apps/backend/bin, " +
+    `Rhubarb Lip-Sync binary not found or not executable. Looked in: ${candidates.join(", ")}. ` +
+      "Download the Rhubarb Lip-Sync release for your platform, place the executable in apps/backend/bin (make sure it is marked as executable), " +
       "install it globally so it's available on your PATH, or set the RHUBARB_PATH environment variable to the binary location (see README)."
   );
 };

@@ -142,10 +142,10 @@ It's recommended to have the paid version. With the free version, the avatar doe
 3. **Rhubarb Lip-Sync:** Download the latest version of Rhubarb Lip-Sync compatible with your operating system from the
    official [Rhubarb Lip-Sync repository](https://github.com/DanielSWolf/rhubarb-lip-sync/releases). Once downloaded,
    create a `/bin` directory in the backend and move all the contents of the unzipped `rhubarb-lip-sync.zip` into it.
-   Sometimes, the operating system requests permissions, so you need to enable them. If you install the binary elsewhere,
-   set the `RHUBARB_PATH` environment variable to point to it. You can also install Rhubarb globally and rely on your
-   system `PATH`; by default, the backend looks for `apps/backend/bin/rhubarb` (or `rhubarb.exe` on Windows) and then a
-   globally available `rhubarb` binary.
+   Make sure the binary has execute permissions (for example, run `chmod +x apps/backend/bin/rhubarb` on macOS/Linux).
+   If you install the binary elsewhere, set the `RHUBARB_PATH` environment variable to point to it. You can also install
+   Rhubarb globally and rely on your system `PATH`; by default, the backend looks for `apps/backend/bin/rhubarb` (or
+   `rhubarb.exe` on Windows) and then a globally available `rhubarb` binary.
 4. Install `ffmpeg` for  [Mac OS](https://formulae.brew.sh/formula/ffmpeg), [Linux](https://ffmpeg.org/download.html) or [Windows](https://ffmpeg.org/download.html).
 
 ### Installation
