@@ -42,7 +42,7 @@ app.post("/tts", async (req, res) => {
 });
 
 app.post("/sts", upload.single("audio"), async (req, res) => {
-  if (!req.file?.buffer) {
+  if (!req.file) {
     res.status(400).send({ error: "Audio file is required." });
     return;
   }
