@@ -1,6 +1,7 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import multer from "multer";
 import { openAIChain, parser } from "./modules/openAI.mjs";
 import { lipSync } from "./modules/lip-sync.mjs";
 import { sendDefaultMessages, defaultResponse } from "./modules/defaultMessages.mjs";
@@ -13,6 +14,7 @@ const elevenLabsApiKey = process.env.ELEVEN_LABS_API_KEY;
 const app = express();
 app.use(express.json());
 app.use(cors());
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // Limit file size to 5MB
 const port = 3000;
 
 app.get("/voices", async (req, res) => {
@@ -39,9 +41,12 @@ app.post("/tts", async (req, res) => {
   res.send({ messages: openAImessages });
 });
 
-app.post("/sts", async (req, res) => {
-  const base64Audio = req.body.audio;
-  const audioData = Buffer.from(base64Audio, "base64");
+app.post("/sts", upload.single("audio"), async (req, res) => {
+  if (!req.file) {
+    res.status(400).send({ error: "Audio file is required." });
+    return;
+  }
+  const audioData = req.file.buffer;
   const userMessage = await convertAudioToText({ audioData });
   let openAImessages;
   try {
