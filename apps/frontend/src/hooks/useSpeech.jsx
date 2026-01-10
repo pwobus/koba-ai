@@ -22,27 +22,21 @@ export const SpeechProvider = ({ children }) => {
   };
 
   const sendAudioData = async (audioBlob) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(audioBlob);
-    reader.onloadend = async function () {
-      const base64Audio = reader.result.split(",")[1];
-      setLoading(true);
-      try {
-        const data = await fetch(`${backendUrl}/sts`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ audio: base64Audio }),
-        });
-        const response = (await data.json()).messages;
-        setMessages((messages) => [...messages, ...response]);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const formData = new FormData();
+    formData.append("audio", audioBlob, "recording.webm");
+    setLoading(true);
+    try {
+      const data = await fetch(`${backendUrl}/sts`, {
+        method: "POST",
+        body: formData,
+      });
+      const response = (await data.json()).messages;
+      setMessages((messages) => [...messages, ...response]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
