@@ -8,9 +8,9 @@
     "dev": "nodemon server.js --ext js"
   },
   "dependencies": {
-    "@langchain/openai": "^0.0.12",
-    "@langchain/google-genai": "^0.2.14",
     "@langchain/core": "^0.3.0",
+    "@langchain/google-genai": "^0.2.14",
+    "@langchain/openai": "^0.0.12",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "elevenlabs-node": "^2.0.3",
