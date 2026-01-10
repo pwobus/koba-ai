@@ -14,7 +14,7 @@ const elevenLabsApiKey = process.env.ELEVEN_LABS_API_KEY;
 const app = express();
 app.use(express.json());
 app.use(cors());
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // Limit file size to 5MB
 const port = 3000;
 
 app.get("/voices", async (req, res) => {
