@@ -23,7 +23,7 @@ export const SpeechProvider = ({ children }) => {
 
   const sendAudioData = async (audioBlob) => {
     const formData = new FormData();
-    formData.append("audio", audioBlob, "recording.webm");
+    formData.append("audio", audioBlob, "audio.webm");
     setLoading(true);
     try {
       const data = await fetch(`${backendUrl}/sts`, {
@@ -34,7 +34,6 @@ export const SpeechProvider = ({ children }) => {
       setMessages((messages) => [...messages, ...response]);
     } catch (error) {
       console.error(error);
-      throw error;
     } finally {
       setLoading(false);
     }
