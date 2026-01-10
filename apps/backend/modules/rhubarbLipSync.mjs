@@ -7,6 +7,8 @@ import { execCommand } from "../utils/files.mjs";
 
 const RHUBARB_PATH = process.env.RHUBARB_PATH;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const backendRoot = path.join(__dirname, "..");
+const audiosDir = path.join(backendRoot, "audios");
 const defaultBinaryName = process.platform === "win32" ? "rhubarb.exe" : "rhubarb";
 const defaultBinaryPath = path.join(__dirname, "..", "bin", defaultBinaryName);
 
@@ -78,9 +80,12 @@ const validateRhubarbResources = (workingDirectory) => {
 const getPhonemes = async ({ message }) => {
   try {
     const time = new Date().getTime();
+    const mp3Path = path.join(audiosDir, `message_${message}.mp3`);
+    const wavPath = path.join(audiosDir, `message_${message}.wav`);
+    const jsonPath = path.join(audiosDir, `message_${message}.json`);
     console.log(`Starting conversion for message ${message}`);
     await execCommand(
-      { command: `ffmpeg -y -i audios/message_${message}.mp3 audios/message_${message}.wav` }
+      { command: `ffmpeg -y -i "${mp3Path}" "${wavPath}"` }
       // -y to overwrite the file
     );
     console.log(`Conversion done in ${new Date().getTime() - time}ms`);
@@ -88,7 +93,7 @@ const getPhonemes = async ({ message }) => {
     validateRhubarbResources(workingDirectory);
 
     await execCommand({
-      command: `"${binaryPath}" -f json -o audios/message_${message}.json audios/message_${message}.wav -r phonetic`,
+      command: `"${binaryPath}" -f json -o "${jsonPath}" "${wavPath}" -r phonetic`,
       cwd: workingDirectory,
     });
     // -r phonetic is faster but less accurate
