@@ -60,6 +60,7 @@ export const SpeechProvider = ({ children }) => {
       : new MediaRecorder(stream);
     newMediaRecorder.onstart = () => {
       chunksRef.current = [];
+      setRecording(true);
     };
     newMediaRecorder.ondataavailable = (event) => {
       if (event.data && event.data.size > 0) {
@@ -67,6 +68,7 @@ export const SpeechProvider = ({ children }) => {
       }
     };
     newMediaRecorder.onstop = async () => {
+      setRecording(false);
       const mimeType = supportedMimeType || "audio/webm";
       const audioBlob = new Blob(chunksRef.current, { type: mimeType });
       if (audioBlob.size < MIN_AUDIO_BYTES) {
@@ -106,7 +108,6 @@ export const SpeechProvider = ({ children }) => {
       }
       if (recorder.state !== "recording") {
         recorder.start(250);
-        setRecording(true);
       }
     } catch (err) {
       console.error("Error accessing microphone:", err);
@@ -116,6 +117,7 @@ export const SpeechProvider = ({ children }) => {
   const stopRecording = () => {
     if (mediaRecorder?.state === "recording") {
       mediaRecorder.stop();
+    } else {
       setRecording(false);
     }
   };
