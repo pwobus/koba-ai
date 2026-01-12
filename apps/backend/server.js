@@ -53,7 +53,11 @@ app.post("/sts", upload.single("audio"), async (req, res) => {
     return;
   }
   try {
-    const userMessage = await convertAudioToText({ audioData });
+    const userMessage = await convertAudioToText({
+      audioData,
+      mimeType: req.file.mimetype,
+      originalName: req.file.originalname,
+    });
     let openAImessages;
     try {
       openAImessages = await openAIChain.invoke({

@@ -13,9 +13,12 @@ export const SpeechProvider = ({ children }) => {
   const chunksRef = useRef([]);
   const streamRef = useRef(null);
 
-  const sendAudioData = async (audioBlob) => {
+  const sendAudioData = async (audioBlob, fileExtension) => {
+    if (!audioBlob || audioBlob.size === 0) {
+      throw new Error("Recorded audio is empty.");
+    }
     const formData = new FormData();
-    formData.append("audio", audioBlob, "audio.webm");
+    formData.append("audio", audioBlob, `audio.${fileExtension}`);
     setLoading(true);
     try {
       const data = await fetch(`${backendUrl}/sts`, {
@@ -40,7 +43,17 @@ export const SpeechProvider = ({ children }) => {
     }
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     streamRef.current = stream;
-    const newMediaRecorder = new MediaRecorder(stream);
+    const preferredMimeTypes = [
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/ogg;codecs=opus",
+      "audio/ogg",
+      "audio/mp4",
+    ];
+    const supportedMimeType = preferredMimeTypes.find((type) => MediaRecorder.isTypeSupported(type));
+    const newMediaRecorder = supportedMimeType
+      ? new MediaRecorder(stream, { mimeType: supportedMimeType })
+      : new MediaRecorder(stream);
     newMediaRecorder.onstart = () => {
       chunksRef.current = [];
     };
@@ -50,9 +63,15 @@ export const SpeechProvider = ({ children }) => {
       }
     };
     newMediaRecorder.onstop = async () => {
-      const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
+      const mimeType = supportedMimeType || "audio/webm";
+      const audioBlob = new Blob(chunksRef.current, { type: mimeType });
+      const fileExtension = mimeType.includes("ogg")
+        ? "ogg"
+        : mimeType.includes("mp4")
+          ? "mp4"
+          : "webm";
       try {
-        await sendAudioData(audioBlob);
+        await sendAudioData(audioBlob, fileExtension);
       } catch (error) {
         console.error(error);
         alert(error.message);
