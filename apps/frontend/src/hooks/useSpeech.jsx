@@ -13,6 +13,7 @@ export const SpeechProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const chunksRef = useRef([]);
   const streamRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
 
   const sendAudioData = async (audioBlob, fileExtension) => {
     if (!audioBlob || audioBlob.size === 0) {
@@ -88,17 +89,18 @@ export const SpeechProvider = ({ children }) => {
       }
     };
     setMediaRecorder(newMediaRecorder);
+    mediaRecorderRef.current = newMediaRecorder;
     return newMediaRecorder;
   };
 
   useEffect(() => {
     return () => {
-      if (mediaRecorder?.state === "recording") {
-        mediaRecorder.stop();
+      if (mediaRecorderRef.current?.state === "recording") {
+        mediaRecorderRef.current.stop();
       }
       streamRef.current?.getTracks().forEach((track) => track.stop());
     };
-  }, [mediaRecorder]);
+  }, []);
 
   const startRecording = async () => {
     try {
