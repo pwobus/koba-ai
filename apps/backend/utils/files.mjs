@@ -1,10 +1,26 @@
-import { exec } from "child_process";
+import { exec, execFile } from "child_process";
 import { promises as fs } from "fs";
 
-const execCommand = ({ command, cwd }) => {
+const execCommand = ({ command, args = [], cwd }) => {
   return new Promise((resolve, reject) => {
+    if (Array.isArray(args) && args.length > 0) {
+      execFile(command, args, { cwd }, (error, stdout, stderr) => {
+        if (error) {
+          error.stderr = stderr;
+          reject(error);
+          return;
+        }
+        resolve(stdout);
+      });
+      return;
+    }
+
     exec(command, { cwd }, (error, stdout, stderr) => {
-      if (error) reject(error);
+      if (error) {
+        error.stderr = stderr;
+        reject(error);
+        return;
+      }
       resolve(stdout);
     });
   });
