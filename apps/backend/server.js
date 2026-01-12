@@ -71,6 +71,10 @@ app.post("/sts", upload.single("audio"), async (req, res) => {
     res.send({ messages: openAImessages });
   } catch (error) {
     console.error("Failed to process speech-to-text request:", error);
+    if (error instanceof Error && error.message.includes("Audio data is")) {
+      res.status(400).send({ error: error.message });
+      return;
+    }
     res.status(500).send({ error: "Failed to process audio." });
   }
 });
