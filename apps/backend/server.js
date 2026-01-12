@@ -48,18 +48,27 @@ app.post("/sts", upload.single("audio"), async (req, res) => {
     return;
   }
   const audioData = req.file.buffer;
-  const userMessage = await convertAudioToText({ audioData });
-  let openAImessages;
-  try {
-    openAImessages = await openAIChain.invoke({
-      question: userMessage,
-      format_instructions: parser.getFormatInstructions(),
-    });
-  } catch (error) {
-    openAImessages = { messages: defaultResponse };
+  if (!audioData || audioData.length === 0) {
+    res.status(400).send({ error: "Audio data is empty." });
+    return;
   }
-  openAImessages = await lipSync({ messages: openAImessages.messages });
-  res.send({ messages: openAImessages });
+  try {
+    const userMessage = await convertAudioToText({ audioData });
+    let openAImessages;
+    try {
+      openAImessages = await openAIChain.invoke({
+        question: userMessage,
+        format_instructions: parser.getFormatInstructions(),
+      });
+    } catch (error) {
+      openAImessages = { messages: defaultResponse };
+    }
+    openAImessages = await lipSync({ messages: openAImessages.messages });
+    res.send({ messages: openAImessages });
+  } catch (error) {
+    console.error("Failed to process speech-to-text request:", error);
+    res.status(500).send({ error: "Failed to process audio." });
+  }
 });
 
 app.listen(port, () => {
