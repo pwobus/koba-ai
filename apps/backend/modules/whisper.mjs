@@ -6,8 +6,8 @@ dotenv.config();
 
 const openAIApiKey = process.env.OPENAI_API_KEY;
 
-async function convertAudioToText({ audioData }) {
-  const mp3AudioData = await convertAudioToMp3({ audioData });
+async function convertAudioToText({ audioData, mimeType, originalName }) {
+  const mp3AudioData = await convertAudioToMp3({ audioData, mimeType, originalName });
   const outputPath = "/tmp/output.mp3";
   fs.writeFileSync(outputPath, mp3AudioData);
   const loader = new OpenAIWhisperAudio(outputPath, { clientOptions: { apiKey: openAIApiKey } });
