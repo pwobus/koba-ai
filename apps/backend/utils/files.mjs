@@ -13,7 +13,7 @@ const execCommand = ({ command, cwd }) => {
 const execFileCommand = ({ file, args = [], cwd }) => {
   return new Promise((resolve, reject) => {
     execFile(file, args, { cwd }, (error, stdout) => {
-      if (error) reject(error);
+      if (error) return reject(error);
       resolve(stdout);
     });
   });
