@@ -36,7 +36,10 @@ async function convertAudioToMp3({ audioData, mimeType, originalName }) {
   const outputPath = path.join(dir, "output.mp3");
   await fs.writeFile(inputPath, audioData);
   try {
-await execCommand({ command: "ffmpeg", args: ["-y", "-i", inputPath, outputPath] });
+    await execCommand({
+      command: "ffmpeg",
+      args: ["-y", "-i", inputPath, outputPath],
+    });
     return await fs.readFile(outputPath);
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
