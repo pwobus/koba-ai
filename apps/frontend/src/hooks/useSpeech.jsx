@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const backendUrl = "http://localhost:3000";
 
@@ -10,16 +10,8 @@ export const SpeechProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState();
   const [loading, setLoading] = useState(false);
-
-  let chunks = [];
-
-  const initiateRecording = () => {
-    chunks = [];
-  };
-
-  const onDataAvailable = (e) => {
-    chunks.push(e.data);
-  };
+  const chunksRef = useRef([]);
+  const streamRef = useRef(null);
 
   const sendAudioData = async (audioBlob) => {
     const formData = new FormData();
@@ -39,38 +31,63 @@ export const SpeechProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((stream) => {
-          const newMediaRecorder = new MediaRecorder(stream);
-          newMediaRecorder.onstart = initiateRecording;
-          newMediaRecorder.ondataavailable = onDataAvailable;
-          newMediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(chunks, { type: "audio/webm" });
-            try {
-              await sendAudioData(audioBlob);
-            } catch (error) {
-              console.error(error);
-              alert(error.message);
-            }
-          };
-          setMediaRecorder(newMediaRecorder);
-        })
-        .catch((err) => console.error("Error accessing microphone:", err));
-    }
-  }, []);
-
-  const startRecording = () => {
+  const setupMediaRecorder = async () => {
     if (mediaRecorder) {
-      mediaRecorder.start();
-      setRecording(true);
+      return mediaRecorder;
+    }
+    if (typeof window === "undefined") {
+      return null;
+    }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    streamRef.current = stream;
+    const newMediaRecorder = new MediaRecorder(stream);
+    newMediaRecorder.onstart = () => {
+      chunksRef.current = [];
+    };
+    newMediaRecorder.ondataavailable = (event) => {
+      if (event.data && event.data.size > 0) {
+        chunksRef.current.push(event.data);
+      }
+    };
+    newMediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
+      try {
+        await sendAudioData(audioBlob);
+      } catch (error) {
+        console.error(error);
+        alert(error.message);
+      }
+    };
+    setMediaRecorder(newMediaRecorder);
+    return newMediaRecorder;
+  };
+
+  useEffect(() => {
+    return () => {
+      if (mediaRecorder?.state === "recording") {
+        mediaRecorder.stop();
+      }
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+    };
+  }, [mediaRecorder]);
+
+  const startRecording = async () => {
+    try {
+      const recorder = await setupMediaRecorder();
+      if (!recorder) {
+        return;
+      }
+      if (recorder.state !== "recording") {
+        recorder.start();
+        setRecording(true);
+      }
+    } catch (err) {
+      console.error("Error accessing microphone:", err);
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorder) {
+    if (mediaRecorder?.state === "recording") {
       mediaRecorder.stop();
       setRecording(false);
     }
