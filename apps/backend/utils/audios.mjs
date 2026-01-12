@@ -30,6 +30,9 @@ async function convertAudioToMp3({ audioData, mimeType, originalName }) {
   if (!audioData || audioData.length === 0) {
     throw new Error("Audio data is empty.");
   }
+  if (audioData.length < 1024) {
+    throw new Error("Audio data is too short to process.");
+  }
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "koba-audio-"));
   const inputExtension = resolveInputExtension({ mimeType, originalName });
   const inputPath = path.join(dir, `input.${inputExtension}`);

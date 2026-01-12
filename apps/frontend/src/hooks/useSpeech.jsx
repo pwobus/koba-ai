@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const backendUrl = "http://localhost:3000";
+const MIN_AUDIO_BYTES = 1024;
 
 const SpeechContext = createContext();
 
@@ -16,6 +17,9 @@ export const SpeechProvider = ({ children }) => {
   const sendAudioData = async (audioBlob, fileExtension) => {
     if (!audioBlob || audioBlob.size === 0) {
       throw new Error("Recorded audio is empty.");
+    }
+    if (audioBlob.size < MIN_AUDIO_BYTES) {
+      throw new Error("Recorded audio is too short. Please record a bit longer.");
     }
     const formData = new FormData();
     formData.append("audio", audioBlob, `audio.${fileExtension}`);
@@ -65,6 +69,10 @@ export const SpeechProvider = ({ children }) => {
     newMediaRecorder.onstop = async () => {
       const mimeType = supportedMimeType || "audio/webm";
       const audioBlob = new Blob(chunksRef.current, { type: mimeType });
+      if (audioBlob.size < MIN_AUDIO_BYTES) {
+        alert("Recording is too short. Please try again.");
+        return;
+      }
       const fileExtension = mimeType.includes("ogg")
         ? "ogg"
         : mimeType.includes("mp4")
@@ -97,7 +105,7 @@ export const SpeechProvider = ({ children }) => {
         return;
       }
       if (recorder.state !== "recording") {
-        recorder.start();
+        recorder.start(250);
         setRecording(true);
       }
     } catch (err) {
