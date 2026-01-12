@@ -26,7 +26,7 @@ const resolveInputExtension = ({ mimeType, originalName }) => {
   }
   if (originalName) {
     const ext = path.extname(originalName).replace(".", "").toLowerCase();
-    if (ext) {
+    if (extensionToFormat.has(ext)) {
       return ext;
     }
   }
