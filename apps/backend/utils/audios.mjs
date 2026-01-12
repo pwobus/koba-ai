@@ -1,7 +1,7 @@
 import { promises as fs } from "fs";
 import os from "os";
 import path from "path";
-import { execCommand } from "./files.mjs";
+import { execFileCommand } from "./files.mjs";
 
 const mimeToExtension = new Map([
   ["audio/webm", "webm"],
@@ -44,8 +44,12 @@ async function convertAudioToMp3({ audioData, mimeType, originalName }) {
   await fs.writeFile(inputPath, audioData);
   try {
     const inputFormat = extensionToFormat.get(inputExtension);
-    const formatArg = inputFormat ? `-f ${inputFormat} ` : "";
-    await execCommand({ command: `ffmpeg -y ${formatArg}-i "${inputPath}" "${outputPath}"` });
+    const ffmpegArgs = ["-y"];
+    if (inputFormat) {
+      ffmpegArgs.push("-f", inputFormat);
+    }
+    ffmpegArgs.push("-i", inputPath, outputPath);
+    await execFileCommand({ file: "ffmpeg", args: ffmpegArgs });
     return await fs.readFile(outputPath);
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
