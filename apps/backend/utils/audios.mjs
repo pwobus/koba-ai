@@ -10,13 +10,6 @@ const mimeToExtension = new Map([
   ["audio/mpeg", "mp3"],
 ]);
 
-const extensionToFormat = new Map([
-  ["webm", "webm"],
-  ["ogg", "ogg"],
-  ["mp4", "mp4"],
-  ["mp3", "mp3"],
-]);
-
 const resolveInputExtension = ({ mimeType, originalName }) => {
   if (mimeType) {
     const baseMimeType = mimeType.split(";")[0]?.trim();
@@ -43,9 +36,7 @@ async function convertAudioToMp3({ audioData, mimeType, originalName }) {
   const outputPath = path.join(dir, "output.mp3");
   await fs.writeFile(inputPath, audioData);
   try {
-    const inputFormat = extensionToFormat.get(inputExtension);
-    const formatArg = inputFormat ? `-f ${inputFormat} ` : "";
-    await execCommand({ command: `ffmpeg -y ${formatArg}-i "${inputPath}" "${outputPath}"` });
+await execCommand({ command: "ffmpeg", args: ["-y", "-i", inputPath, outputPath] });
     return await fs.readFile(outputPath);
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
