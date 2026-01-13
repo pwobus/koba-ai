@@ -27,7 +27,7 @@ const lipSync = async ({ messages } = {}) => {
           const status = error?.response?.status;
           const shouldRetry = status === 429 && attempt < MAX_RETRIES - 1;
           if (shouldRetry) {
-            await delay(RETRY_DELAY * (attempt + 1));
+            await delay(RETRY_DELAY * Math.pow(2, attempt));
             continue;
           }
           console.warn(`Failed to convert message ${index} to speech.`, error);
